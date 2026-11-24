@@ -5,15 +5,23 @@ import { GridHoverRenderer } from "../objects/GridHoverRenderer";
 import { Client, Room,Callbacks } from "@colyseus/sdk";
 import { Player } from "../objects/Presentation/Player";
 import { ChestSpritePool } from '../objects/ObjPools/ChestSpritePool';
+import { DefaultPlayerStats, PlayerState } from '../../schemas/PlayerState';
+import { MyRoomState } from '../../schemas/MyRoomState';
+import { RangeOverlay } from '../objects/RangeOverlay';
+import { InputHandlerManager } from '../objects/InputHandler/InputHandlerManager';
+import { MoveData, MoveInput } from '../objects/InputHandler/MoveInput';
+import { DefaultInputHandler } from '../objects/InputHandler/DefaultInputHandler';
 
 export class BattleRoyale extends Scene {
     player!: Player;
     cameraController!: CameraController;
     gridData!: GridData;
     hoverRenderer!:GridHoverRenderer;
+    rangeOverlay!:RangeOverlay;
     client:Client;
-    room:Room;
+    room:Room<MyRoomState>;
     chestSpritePool!: ChestSpritePool;
+    inputHandlerManager!: InputHandlerManager<BattleRoyale>;
     
 
     constructor() {
@@ -29,11 +37,13 @@ export class BattleRoyale extends Scene {
        this.initMap();
        this.initPlayer();
        this.initCamera();
-       this.initInput();
+       
        this.initChestSpritePool();
        this.initColyseusCallback();
+       this.initInputHandlerManager()
+       this.initInput();
        this.hoverRenderer=new GridHoverRenderer(this,this.gridData);
-       this.player.healthBar.setHealth(45);
+       this.rangeOverlay=new RangeOverlay(this,this.gridData.cellSize);
 
     }
 
@@ -41,6 +51,13 @@ export class BattleRoyale extends Scene {
         this.cameraController.update(delta);
         const mouseWorld = this.cameraController.getPointerWorldPosition();
         this.hoverRenderer.updateHover(mouseWorld.x, mouseWorld.y);
+    }
+
+    initInputHandlerManager()
+    {
+        this.inputHandlerManager=new InputHandlerManager();
+        const defaultInput=new DefaultInputHandler("default",this,this.inputHandlerManager);
+        this.inputHandlerManager.init(defaultInput,defaultInput);
     }
 
     initMap()
@@ -84,6 +101,16 @@ export class BattleRoyale extends Scene {
             this.cameraController.centerOn(this.player.x,this.player.y);
             console.log("snap");
         })
+     const qKey=this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.Q);
+     qKey?.on('down',()=>{
+        this.cameraController.centerOn(this.player.x,this.player.y);
+        this.inputHandlerManager.changeInputHandler(new MoveInput("move",this,this.inputHandlerManager));
+     })
+
+     const xKey=this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.X);
+     xKey?.on('down',()=>{
+        this.inputHandlerManager.changeInputHandler(new DefaultInputHandler("default",this,this.inputHandlerManager));
+     })
     }
     initChestSpritePool()
     {
@@ -93,11 +120,51 @@ export class BattleRoyale extends Scene {
     {
         try{
         this.client=new Client("ws://localhost:2567");
-        this.room= await this.client.joinOrCreate("game_room");
+        this.room= await this.client.joinOrCreate<MyRoomState>("my_room");
+        this.room.onMessage("welcome", (payload) => {
+  console.log("Received welcome:", payload);
+});
         const callbacks=Callbacks.get(this.room);
+        const cellSize =this.gridData.cellSize;
         callbacks.onAdd('players',(player,sessionID)=>
         {
-            
+            if(sessionID==this.room.sessionId)
+            {
+                this.player.setPosition(player.x*cellSize+cellSize/2,player.y*cellSize+cellSize/2);
+                this.player.gridPos.x=player.x;
+                this.player.gridPos.y=player.y;
+                this.player.healthBar.setHealth(player.hp);
+                 callbacks.listen(player,'x',()=>{
+                this.player.setPosition(player.x*cellSize+cellSize/2,player.y*cellSize+cellSize/2);
+                this.player.gridPos.x=player.x;
+                this.player.gridPos.y=player.y;
+            });
+            callbacks.listen(player,'y',()=>{
+               this.player.setPosition(player.x*cellSize+cellSize/2,player.y*cellSize+cellSize/2);
+                this.player.gridPos.x=player.x;
+                this.player.gridPos.y=player.y;
+            });
+            callbacks.listen(player,'hp',()=>{
+                this.player.healthBar.setHealth(player.hp);
+            });
+                return;
+            }
+            console.log(`player pos: ${player.x} ${player.y}`)
+            const newplayer= new Player(this,player.x,player.y,DefaultPlayerStats.stats[3],'player');
+            newplayer.healthBar.setHealth(player.hp);
+            callbacks.listen(player,'x',()=>{
+                newplayer.setPosition(player.x*cellSize+cellSize/2,player.y*cellSize+cellSize/2);
+            });
+            callbacks.listen(player,'y',()=>{
+                newplayer.setPosition(player.x*cellSize+cellSize/2,player.y*cellSize+cellSize/2);
+            });
+            callbacks.listen(player,'hp',()=>{
+                newplayer.healthBar.setHealth(player.hp);
+            });
+            callbacks.onRemove("players",(player,sessionID)=>
+            {
+                newplayer.destroy();
+            })
 
         })
     }
@@ -107,6 +174,7 @@ export class BattleRoyale extends Scene {
     }
 
     }
+    
     
 }
 

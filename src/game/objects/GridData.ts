@@ -74,10 +74,16 @@ export class GridData {
         return this.cells[row][col];
     }
 
+    public getGridpos(worldX: number, worldY: number): GridPos {
+        return {
+            x: Math.floor((worldX - this.offsetX) / this.cellSize),
+            y: Math.floor((worldY - this.offsetY) / this.cellSize),
+        };
+    }
+
     public getCellAtWorld(worldX: number, worldY: number): Cell | null {
-        const col = Math.floor((worldX - this.offsetX) / this.cellSize);
-        const row = Math.floor((worldY - this.offsetY) / this.cellSize);
-        return this.getCell(col, row);
+        const gridPos = this.getGridpos(worldX, worldY);
+        return this.getCell(gridPos.x, gridPos.y);
     }
 
     public getAllCells(): Cell[] {
@@ -91,4 +97,53 @@ export class GridData {
             }
         }
     }
+
+   
+
+// Ví dụ: Tính tầm di chuyển bằng BFS (4 hướng)
+ getMoveRange(
+  start: GridPos,
+  maxSteps: number,
+): GridPos[] {
+  const visited = new Set<string>();
+  const queue: { pos: GridPos; steps: number }[] = [{ pos: start, steps: 0 }];
+  const result: GridPos[] = [];
+
+  visited.add(`${start.x},${start.y}`);
+  console.log("draw point : "+start.x+start.y)
+  const dirs = [
+    { col: 0, row: -1 },
+    { col: 0, row: 1 },
+    { col: -1, row: 0 },
+    { col: 1, row: 0 },
+  ];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    if (current.steps > 0) {
+      result.push(current.pos); // Không tính ô đang đứng
+    }
+
+    if (current.steps >= maxSteps) continue;
+
+    for (const dir of dirs) {
+      const nextCol = current.pos.x + dir.col;
+      const nextRow = current.pos.y + dir.row;
+      const key = `${nextCol},${nextRow}`;
+
+      if (!visited.has(key)) {
+        visited.add(key);
+        queue.push({ pos: { x: nextCol, y: nextRow }, steps: current.steps + 1 });
+      }
+    }
+  }
+
+  return result;
 }
+}
+
+export interface GridPos {
+  x: number;
+  y: number;
+}
+

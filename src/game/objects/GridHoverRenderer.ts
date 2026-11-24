@@ -35,8 +35,8 @@ export class GridHoverRenderer {
             return null;
         }
 
-        const fillColor = hoveredCell.walkable ? 0x00ff88 : 0xff4444;
-        const strokeColor = hoveredCell.walkable ? 0x66ffbb : 0xff8888;
+        const fillColor = 0xff4444;
+        const strokeColor =0xff8888;
 
         this.graphics.fillStyle(fillColor, 0.2);
         this.graphics.fillRect(hoveredCell.x, hoveredCell.y, hoveredCell.size, hoveredCell.size);
