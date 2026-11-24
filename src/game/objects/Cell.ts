@@ -1,3 +1,5 @@
+import { ChestSpritePool } from "./ObjPools/ChestSpritePool";
+
 export interface CellConfig {
     col: number;
     row: number;
@@ -11,7 +13,8 @@ export class Cell {
     public readonly row: number;
     public readonly x: number;      // world top-left X
     public readonly y: number;      // world top-left Y
-    public readonly size: number;   // cell size in pixels
+    public readonly size: number;
+    public hasChest:boolean;   // cell size in pixels
 
     constructor(config: CellConfig) {
         this.col = config.col;
@@ -40,4 +43,13 @@ export class Cell {
             worldY < this.y + this.size
         );
     }
+    public getChest(chestspritespool:ChestSpritePool)
+    {
+        if(!this.hasChest)
+        {
+            chestspritespool.acquire(this.centerX,this.centerY,0);
+            this.hasChest=true;
+        }
+    }
+   
 }

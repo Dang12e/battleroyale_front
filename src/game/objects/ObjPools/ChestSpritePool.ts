@@ -50,6 +50,7 @@ export class ChestSpritePool {
 
   private createSprite(): Phaser.GameObjects.Sprite {
     const sprite = this.scene.add.sprite(0, 0, this.textureKey, this.frame);
+    sprite.setDepth(16);
     sprite.setActive(false);
     sprite.setVisible(false);
     return sprite;
