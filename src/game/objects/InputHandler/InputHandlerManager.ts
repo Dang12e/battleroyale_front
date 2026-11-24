@@ -2,25 +2,31 @@ import { DefaultInputHandler } from "./DefaultInputHandler";
 import { InputHandler } from "./InputHandler";
 
 export class InputHandlerManager<TContext>{
-    constructor(
-    private currentInputHandler:InputHandler<TContext,any>,
-    private defaultInputHandler:InputHandler<TContext,any>)
-    {}
     
-    public changeInputHandler<TData>(newHandler:InputHandler<TContext,TData>,data:TData)
+    private currentInputHandler:InputHandler<TContext>;
+    private defaultInputHandler:InputHandler<TContext>;
+    
+    public init(currentInputHandler:InputHandler<TContext>,defaultInputHandler:InputHandler<TContext>)
     {
-        this.currentInputHandler?.onExit(data);
+        this.currentInputHandler=currentInputHandler;
+        this.defaultInputHandler=currentInputHandler;
+
+    }
+    
+    public changeInputHandler(newHandler:InputHandler<TContext>)
+    {
+        this.currentInputHandler?.onExit();
         this.currentInputHandler=newHandler;
-        this.currentInputHandler.onEnter(data);
+        this.currentInputHandler.onEnter();
         
     }
-    public exitcurrentHandler<TData>(data:TData)
+    public exitcurrentHandler()
     {
         if(this.currentInputHandler!=this.defaultInputHandler)
         {
-            this.currentInputHandler.onExit(data);
+            this.currentInputHandler.onExit();
             this.currentInputHandler=this.defaultInputHandler;
-            this.currentInputHandler.onEnter(data);
+            this.currentInputHandler.onEnter();
         }
     }
 }
