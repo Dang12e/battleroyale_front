@@ -98,12 +98,16 @@ export class BattleRoyale extends Scene {
      const spaceKey = this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.A);
         spaceKey?.on('down',()=>
         {
+            this.cameraController.setZoom(1);
             this.cameraController.centerOn(this.player.x,this.player.y);
+            
             console.log("snap");
         })
      const qKey=this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.Q);
      qKey?.on('down',()=>{
+        this.cameraController.setZoom(1);
         this.cameraController.centerOn(this.player.x,this.player.y);
+        
         this.inputHandlerManager.changeInputHandler(new MoveInput("move",this,this.inputHandlerManager));
      })
 
@@ -166,6 +170,12 @@ export class BattleRoyale extends Scene {
                 newplayer.destroy();
             })
 
+        })
+        callbacks.onAdd('droppedItems',(item,sessionID)=>
+        {
+            const cell=this.gridData.getCell(item.x,item.y);
+            cell?.getChest(this.chestSpritePool);
+            
         })
     }
     catch(e:any)

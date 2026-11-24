@@ -26,8 +26,9 @@ export class Player extends GameObjects.Container {
 
     this.sprite = scene.add.sprite(0, 0, textureKey);
     this.healthBar = new HealthBar(scene, 0, -20, 24, 5, maxHp);
-
+    
     this.add([this.sprite, this.healthBar]);
+    this.setDepth(20);
     scene.add.existing(this);
   }
 }
