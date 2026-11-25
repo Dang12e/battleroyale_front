@@ -22,6 +22,7 @@ export class BattleRoyale extends Scene {
     room:Room<MyRoomState>;
     chestSpritePool!: ChestSpritePool;
     inputHandlerManager!: InputHandlerManager<BattleRoyale>;
+    mapJson!: any;
     
 
     constructor() {
@@ -30,11 +31,16 @@ export class BattleRoyale extends Scene {
 
     preload() {
         this.load.image('player', 'assets/PNG/Players/Tiles/tile_0000.png');
-        this.load.image('chest','assets/PNG/Tiles/Tiles/tile_0216.png')
+        this.load.image('chest','assets/PNG/Tiles/Tiles/tile_0216.png');
+        this.load.json('mapData', 'assets/map.json');
+        this.load.spritesheet('groundTiles', 'assets/tileset_clean.png', { frameWidth: 16, frameHeight: 16, spacing: 1 });
     }
 
     create() {
+        this.mapJson = this.cache.json.get('mapData');
        this.initMap();
+       this.initGround();
+       this.initDecor();
        this.initPlayer();
        this.initCamera();
        
@@ -69,10 +75,54 @@ export class BattleRoyale extends Scene {
     height: 90,
     cellSize: 24,});
     }
+    initGround() {    //lay map trong map.json
+        const mapData = this.mapJson;
+        const groundFrames: number[] = mapData.ground;
+        const mapWidth: number = mapData.width;
+        const mapHeight: number = mapData.height;
+        const cellSize = this.gridData.cellSize;
+        const tileSize: number = mapData.tileSize;
+        const scale = cellSize / tileSize;
+        for (let row = 0; row < mapHeight; row++) {
+            for (let col = 0; col < mapWidth; col++) {
+                const index = row * mapWidth + col;
+                const frame = groundFrames[index];
+                const worldX = col * cellSize + cellSize / 2;
+                const worldY = row * cellSize + cellSize / 2;
+                const tile = this.add.image(worldX, worldY, 'groundTiles', frame);
+                tile.setScale(scale);
+                tile.setDepth(0);
+            }
+        }
+    }
+    initDecor() {     //lay decor trong map.json
+    const mapData = this.mapJson;
+    const decors: any[] = mapData.decor;
+    const cellSize = this.gridData.cellSize;
+    const tileSize: number = mapData.tileSize;
+    const scale = cellSize / tileSize;
+
+    for (const d of decors) {
+        // frames có thể 1 tile (bụi cỏ) hoặc 2 tile (cây cao)
+        const frames: number[] = d.frames;
+
+        for (let i = 0; i < frames.length; i++) {
+            const col = d.x;
+            const row = d.y + i;  // frame thứ 2 nằm ở hàng bên dưới
+
+            const worldX = col * cellSize + cellSize / 2;
+            const worldY = row * cellSize + cellSize / 2;
+
+            const sprite = this.add.image(worldX, worldY, 'groundTiles', frames[i]);
+            sprite.setScale(scale);
+            sprite.setDepth(1);  // depth 1 = nằm trên ground (depth 0)
+        }
+    }
+}
     initPlayer()
     {
       const cellSize=this.gridData.cellSize;
-      this.player = new Player(this,45*cellSize+cellSize/2,45*cellSize+cellSize/2,100,'player');
+      this.player = new Player(this,0*cellSize+cellSize/2,0*cellSize+cellSize/2,100,'player');
     }
     initCamera()
     {
@@ -81,11 +131,11 @@ export class BattleRoyale extends Scene {
         const worldHeight = cellSize*this.gridData.height;
         
         this.cameraController = new CameraController(this, {
-            minZoom: 0.5,
+            minZoom: 0.9,
             maxZoom: 2.5,
             zoomStep: 0.1,
             edgeMargin: 20,
-            panSpeed: 300,
+            panSpeed: 800,
             worldWidth,
             worldHeight,
         });
@@ -115,11 +165,13 @@ export class BattleRoyale extends Scene {
      xKey?.on('down',()=>{
         this.inputHandlerManager.changeInputHandler(new DefaultInputHandler("default",this,this.inputHandlerManager));
      })
-    }
+    } 
+
     initChestSpritePool()
     {
-       this.chestSpritePool=new ChestSpritePool(this,'chest',5,0);
+       this.chestSpritePool=new ChestSpritePool(this,'chest',100,0);
     }
+
     async initColyseusCallback()
     {
         try{

@@ -9,7 +9,7 @@ export class ChestSpritePool {
   constructor(
     scene: Phaser.Scene,
     textureKey: string,
-    initialCount = 10,
+    initialCount = 900,
     frame?: string | number
   ) {
     this.scene = scene;

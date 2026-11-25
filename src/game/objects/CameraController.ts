@@ -35,11 +35,11 @@ export class CameraController {
         this.scene = scene;
         this.camera = scene.cameras.main;
 
-        this.minZoom = config.minZoom ?? 0.5;
+        this.minZoom = config.minZoom ?? 0.9;
         this.maxZoom = config.maxZoom ?? 2.5;
         this.zoomStep = config.zoomStep ?? 0.1;
         this.edgeMargin = config.edgeMargin ?? 40;
-        this.panSpeed = config.panSpeed ?? 600;
+        this.panSpeed = config.panSpeed ?? 800;
         this.enabled = config.enabled ?? true;
 
         if (config.worldWidth !== undefined && config.worldHeight !== undefined) {
