@@ -83,7 +83,7 @@ export class BattleRoyale extends Scene {
             return;
         }
 
-        const scale = this.gridData.cellSize / map.tileWidth;
+        const scale = this.gridData.cellSize / map.tileWidth; //scale decor theo o
         map.createLayer('ground', tileset, 0, 0)?.setScale(scale).setDepth(0);
         map.createLayer('decor', tileset, 0, 0)?.setScale(scale).setDepth(1);
         map.createLayer('skulls', tileset, 0, 0)?.setScale(scale).setDepth(1);
