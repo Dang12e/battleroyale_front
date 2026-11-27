@@ -5,16 +5,19 @@ export class ChestSpritePool {
   private readonly pool: Phaser.GameObjects.Sprite[] = [];
   private readonly textureKey: string;
   private readonly frame?: string | number;
+  private readonly parent?: Phaser.GameObjects.Container;
 
   constructor(
     scene: Phaser.Scene,
     textureKey: string,
     initialCount = 10,
-    frame?: string | number
+    frame?: string | number,
+    parent?: Phaser.GameObjects.Container
   ) {
     this.scene = scene;
     this.textureKey = textureKey;
     this.frame = frame;
+    this.parent = parent;
 
     for (let i = 0; i < initialCount; i++) {
       this.pool.push(this.createSprite());
@@ -50,6 +53,7 @@ export class ChestSpritePool {
 
   private createSprite(): Phaser.GameObjects.Sprite {
     const sprite = this.scene.add.sprite(0, 0, this.textureKey, this.frame);
+    this.parent?.add(sprite);
     sprite.setDepth(16);
     sprite.setActive(false);
     sprite.setVisible(false);
