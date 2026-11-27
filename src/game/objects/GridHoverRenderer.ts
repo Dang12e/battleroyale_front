@@ -9,10 +9,11 @@ export class GridHoverRenderer {
     private readonly graphics: GameObjects.Graphics;
     private lastCell: Cell | null = null;
 
-    constructor(scene: Phaser.Scene, gridData: GridData) {
+    constructor(scene: Phaser.Scene, gridData: GridData,parent: Phaser.GameObjects.Container) {
         this.scene = scene;
         this.gridData = gridData;
         this.graphics = scene.add.graphics();
+        parent.add(this.graphics);
         this.graphics.setDepth(10);
 
         const cleanup = () => this.destroy();

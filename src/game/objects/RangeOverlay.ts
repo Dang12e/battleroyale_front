@@ -3,11 +3,13 @@ import { GridPos } from "./GridData";
 export class RangeOverlay {
   private graphics: Phaser.GameObjects.Graphics;
   private tileSize: number;
+  
 
-  constructor(scene: Phaser.Scene, tileSize: number, depth = 15) {
+  constructor(scene: Phaser.Scene, tileSize: number, depth = 15,parent?: Phaser.GameObjects.Container) {
     this.tileSize = tileSize;
     this.graphics = scene.add.graphics();
     this.graphics.setDepth(depth);
+    parent?.add(this.graphics);
   }
 
   // Vẽ danh sách các ô

@@ -1,4 +1,7 @@
+import { ItemState } from "../../schemas/ItemState";
+import { PlayerState } from "../../schemas/PlayerState";
 import { ChestSpritePool } from "./ObjPools/ChestSpritePool";
+import { Player } from "./Presentation/Player";
 
 export interface CellConfig {
     col: number;
@@ -6,6 +9,7 @@ export interface CellConfig {
     offsetX: number;
     offsetY: number;
     cellSize: number;
+
 }
 
 export class Cell {
@@ -14,7 +18,9 @@ export class Cell {
     public readonly x: number;      // world top-left X
     public readonly y: number;      // world top-left Y
     public readonly size: number;
-    public hasChest:boolean;   // cell size in pixels
+    public hasChest:boolean;  
+    public itemsList: Array<ItemState>=new Array<ItemState>();
+    public player:Player | null=null; // cell size in pixels
 
     constructor(config: CellConfig) {
         this.col = config.col;
@@ -50,6 +56,22 @@ export class Cell {
             chestspritespool.acquire(this.centerX,this.centerY,0);
             this.hasChest=true;
         }
+    }
+    public pushItem(itemState:ItemState)
+    {
+     this.itemsList.push(itemState);
+    }
+    public removeItem(itemState:ItemState)
+    {
+        this.itemsList=this.itemsList.filter(item=>{item==itemState});
+    }
+    public removePlayer()
+    {
+        this.player=null;
+    }
+    public setPlayer(player:Player)
+    {
+        this.player=player;
     }
    
 }
