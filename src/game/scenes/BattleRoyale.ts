@@ -44,6 +44,8 @@ export class BattleRoyale extends Scene {
         this.load.image('player', 'assets/PNG/Players/Tiles/tile_0000.png');
         this.load.image('chest','assets/PNG/Tiles/Tiles/tile_0216.png');
         this.load.spritesheet('maptiles','public/assets/PNG/Tiles/Tilemap/tilemap_packed.png',{ frameWidth: 16, frameHeight: 16 });
+        this.load.image("AK36","public/assets/itemicon/ak36.png");
+        
     }
 
     create() {

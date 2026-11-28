@@ -86,7 +86,7 @@ export class DropListView {
       .setStrokeStyle(1, 0x4b586e, 1);
 
     const icon = this.scene.add
-      .image(20, this.rowHeight / 2, item.itemId)
+      .image(20, this.rowHeight / 2, item.itemTypeId)
       .setDisplaySize(24, 24);
 
     const text = this.scene.add
