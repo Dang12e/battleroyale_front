@@ -14,7 +14,7 @@ const config: Phaser.Types.Core.GameConfig = {
     width: 1024,
     height: 768,
     parent: "game-container",
-    backgroundColor: "#028af8",
+    backgroundColor: "#000000",
     pixelArt: true,
     scale: {
         mode: Phaser.Scale.RESIZE,        // Vừa khít màn hình khi F11, giữ đúng tỷ lệ 1024x768 & pixelArt

@@ -14,6 +14,7 @@ import { DefaultInputHandler } from '../objects/InputHandler/DefaultInputHandler
 import { TilemapHelper } from '../../helpers/TileMapHelper';
 import { DropListView } from '../objects/DropList';
 import { LootInput } from '../objects/InputHandler/LootInput';
+import {HotBar} from '../objects/HotBar';
 
 export class BattleRoyale extends Scene {
     worldContainer!: GameObjects.Container;
@@ -33,6 +34,7 @@ export class BattleRoyale extends Scene {
     chestSpritePool!: ChestSpritePool;
     inputHandlerManager!: InputHandlerManager<BattleRoyale>;
     dropList!:DropListView;
+    hotBar!:HotBar;
     
     
 
@@ -44,7 +46,9 @@ export class BattleRoyale extends Scene {
         this.load.image('player', 'assets/PNG/Players/Tiles/tile_0000.png');
         this.load.image('chest','assets/PNG/Tiles/Tiles/tile_0216.png');
         this.load.spritesheet('maptiles','public/assets/PNG/Tiles/Tilemap/tilemap_packed.png',{ frameWidth: 16, frameHeight: 16 });
+        this.load.image("AK36","public/assets/itemicon/ak36.png");
     }
+        
 
     create() {
        this.initMap();
@@ -54,6 +58,7 @@ export class BattleRoyale extends Scene {
        this.initChestSpritePool();
        this.initColyseusCallback();
        this.initInputHandlerManager();
+       this.initHotBar();
        this.initDropList();
        this.initInput();
        this.hoverRenderer=new GridHoverRenderer(this,this.gridData,this.overlayContainer);
@@ -146,10 +151,12 @@ export class BattleRoyale extends Scene {
     }
     
     }
+
+
     initPlayer()
     {
       const cellSize=this.gridData.cellSize;
-      this.player = new Player(this,45*cellSize+cellSize/2,45*cellSize+cellSize/2,100,'player');
+      this.player = new Player(this,0*cellSize+cellSize/2,0*cellSize+cellSize/2,100,'player');
     }
     initInput()
     {
@@ -185,6 +192,7 @@ export class BattleRoyale extends Scene {
        this.chestSpritePool=new ChestSpritePool(this,'chest',5,0,this.chestContainer);
        this.refreshCameraIgnores();
     }
+
     async initColyseusCallback()
     {
         try{
@@ -276,6 +284,10 @@ export class BattleRoyale extends Scene {
     initDropList()
     {
         this.dropList=new DropListView(this,30,this.uiContainer);
+    }
+
+    initHotBar(){
+        this.hotBar=new HotBar(this,this.uiContainer);
     }
     
     
