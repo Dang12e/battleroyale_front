@@ -1,4 +1,4 @@
-import {Scene,Scenes,Cameras,Input,GameObjects,Math as PhaserMath} from 'phaser';
+import {Scene,Scenes,Cameras,Input,GameObjects,Scale,Math as PhaserMath} from 'phaser';
 
 export interface CameraControllerConfig {
     minZoom?: number;
@@ -17,10 +17,14 @@ export class CameraController {
 
     private minZoom: number;
     private maxZoom: number;
+    private readonly minZoomLimit: number;
+    private readonly maxZoomLimit: number;
     private zoomStep: number;
     private edgeMargin: number;
     private panSpeed: number;
     private enabled: boolean;
+    private worldWidth?: number;
+    private worldHeight?: number;
 
     private readonly handleWheel: (
         pointer: Input.Pointer,
@@ -29,23 +33,34 @@ export class CameraController {
         deltaY: number
     ) => void;
 
+    private readonly handleResize: () => void;
     private readonly handleDestroy: () => void;
 
     constructor(scene: Scene, config: CameraControllerConfig = {}) {
         this.scene = scene;
         this.camera = scene.cameras.main;
 
-        this.minZoom = config.minZoom ?? 0.9;
-        this.maxZoom = config.maxZoom ?? 2.5;
+        this.minZoomLimit = config.minZoom ?? 0.5;
+        this.maxZoomLimit = config.maxZoom ?? 2.5;
+        this.minZoom = this.minZoomLimit;
+        this.maxZoom = this.maxZoomLimit;
         this.zoomStep = config.zoomStep ?? 0.1;
         this.edgeMargin = config.edgeMargin ?? 40;
         this.panSpeed = config.panSpeed ?? 800;
         this.enabled = config.enabled ?? true;
+        this.worldWidth = config.worldWidth;
+        this.worldHeight = config.worldHeight;
 
         if (config.worldWidth !== undefined && config.worldHeight !== undefined) {
             this.setBounds(0, 0, config.worldWidth, config.worldHeight);
             console.log(config.worldHeight,config.worldWidth);
         }
+
+        this.updateZoomLimits();
+        this.handleResize = () => {
+            this.updateZoomLimits();
+        };
+        this.scene.scale.on(Scale.Events.RESIZE, this.handleResize);
 
         this.handleWheel = (pointer, _currentlyOver, _deltaX, deltaY) => {
             if (!this.enabled) return;
@@ -132,12 +147,26 @@ export class CameraController {
         this.camera.setZoom(PhaserMath.Clamp(zoom, this.minZoom, this.maxZoom));
     }
 
+    private updateZoomLimits(): void {
+        const fitZoom = this.worldWidth !== undefined && this.worldHeight !== undefined
+            ? Math.max(this.camera.width / this.worldWidth, this.camera.height / this.worldHeight)
+            : 0;
+
+        this.minZoom = Math.max(this.minZoomLimit, fitZoom);
+        this.maxZoom = Math.max(this.maxZoomLimit, this.minZoom);
+
+        if (this.camera.zoom < this.minZoom) {
+            this.camera.setZoom(this.minZoom);
+        }
+    }
+
     public setEnabled(enabled: boolean): void {
         this.enabled = enabled;
     }
 
     public destroy(): void {
         this.scene.input.off("wheel", this.handleWheel);
+        this.scene.scale.off(Scale.Events.RESIZE, this.handleResize);
         this.scene.events.off(Scenes.Events.SHUTDOWN, this.handleDestroy);
         this.scene.events.off(Scenes.Events.DESTROY, this.handleDestroy);
     }
