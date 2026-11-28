@@ -46,7 +46,7 @@ export class CameraController {
         this.maxZoom = this.maxZoomLimit;
         this.zoomStep = config.zoomStep ?? 0.1;
         this.edgeMargin = config.edgeMargin ?? 40;
-        this.panSpeed = config.panSpeed ?? 600;
+        this.panSpeed = config.panSpeed ?? 800;
         this.enabled = config.enabled ?? true;
         this.worldWidth = config.worldWidth;
         this.worldHeight = config.worldHeight;
